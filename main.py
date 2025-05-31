@@ -8,19 +8,10 @@ from config import TOKEN
 
 
 
-bot = Bot(token=TOKEN)
-storage = MemoryStorage()
-dp = Dispatcher()
-
-class Form(StatesGroup):
-    name = State()       # Имя пользователя
-    date = State()       # Дата тренировки
-    time = State()       # Время тренировки
-    type = State()       # Тип тренировки
 
 
 async def main():
-    bot = Bot()
+    bot = Bot(token=TOKEN)
     dp = Dispatcher()
     
     dp.include_routers(sign_gym.router)
