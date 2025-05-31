@@ -39,12 +39,11 @@ async def name_input(message: Message, state: FSMContext):
 async def invalid_name_input(message: Message, state: FSMContext):
     await message.answer(text="Имя должно начинаться с заглавной буквы и состоять только из русских символов!")
 
-@router.message(Registration.date_training_input,F.text.regexp(r'DD-MM-YYYY'))
+@router.message(Registration.date_training_input,F.text.regexp(r'\b\d{2}/\d{2}/\d{4}\b'))
 async def date_training_input(message: Message,state: FSMContext):
     data = await state.get_data()
     data["date_training"] = message.text.lower()
-    await state.set_state(Registration.number_input)
-    await state.update_data(address=data['date_training'])
+    await state.update_data(date_training=data['date_training'])
     await message.answer(text="Введите время тренеровки")
     await state.set_state(Registration.training_time_input)
 
@@ -76,7 +75,7 @@ async def type_training(message: Message,state: FSMContext):
     await message.answer(text="Регистрация завершена!")
 
 
-@router.message(Registration.training_time_input)
+@router.message(Registration.type_training_input)
 async def invalid_type_training_input(message: Message, state: FSMContext):
     await message.answer(text="Тип тренеровки неверный! Должно состоять из букв! \n"
                               "Пример: кардио")
