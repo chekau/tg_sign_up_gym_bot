@@ -43,7 +43,7 @@ async def invalid_name_input(message: Message, state: FSMContext):
 @router.message(Registration.date_training_input,F.text.regexp(r'^[А-Я][а-я]+$'))
 async def date_training_input(message: Message,state: FSMContext):
     data = await state.get_data()
-    data["number"] = message.text.lower()
+    data["date_training"] = message.text.lower()
     await state.set_state(Registration.number_input)
     await state.update_data(address=data['date_training'])
     await message.answer(text="Введите время тренеровки")
@@ -52,10 +52,21 @@ async def date_training_input(message: Message,state: FSMContext):
 
 @router.message(Registration.date_training_input)
 async def invalid_date_training_input(message: Message, state: FSMContext):
-    ...
+    await message.answer(text="Дата неверная! Она должна быть корректной! \n"
+                              "Пример: 2")
 
 @router.message(Registration.training_time_input,F.text.regexp((r'^[1-9][0-9]*$')))
 async def time_training_input(message: Message,state: FSMContext):
-    ...                
+    data = await state.get_data()
+    data["time_training"] = message.text.lower()
+    await state.update_data(time_training=data['time_training']) 
+    await message.answer(text="Введите тип тренеровки")
+    # await state.set_state(Registration.)             
 
-    
+@router.message(Registration.training_time_input)
+async def invalid_time_training_input(message: Message, state: FSMContext):
+    await message.answer(text="Время неверное! Должно состоять из цифр! \n"
+                              "Пример: 22")
+
+
+
