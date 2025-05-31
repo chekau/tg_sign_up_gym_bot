@@ -32,7 +32,7 @@ async def name_input(message: Message, state: FSMContext):
     new_user = Client()
     new_user.name = message.text.lower()
     await state.update_data(name=new_user.name)
-    await message.answer(text="Введите дату тренеровки>>")
+    await message.answer(text="Введите дату тренеровки, в виде число/месяц/год>>>>")
     await state.set_state(Registration.date_training_input)
 
 @router.message(Registration.name_input)
@@ -44,27 +44,27 @@ async def date_training_input(message: Message,state: FSMContext):
     data = await state.get_data()
     data["date_training"] = message.text.lower()
     await state.update_data(date_training=data['date_training'])
-    await message.answer(text="Введите время тренеровки")
+    await message.answer(text="Введите время тренеровки, в виде число:число >>")
     await state.set_state(Registration.training_time_input)
 
 
 @router.message(Registration.date_training_input)
 async def invalid_date_training_input(message: Message, state: FSMContext):
      await message.answer(text="Дата неверная! Она должна быть корректной! \n"
-                               "Пример: 2")
+                               "Пример: 12/01/2025")
 
-@router.message(Registration.training_time_input,F.text.regexp(r'^[1-9][0-9]*$'))
+@router.message(Registration.training_time_input,F.text.regexp(r'\b[0-2]?[0-9]:[0-5][0-9]\b'))
 async def time_training_input(message: Message,state: FSMContext):
     data = await state.get_data()
     data["time_training"] = message.text.lower()
     await state.update_data(time_training=data['time_training']) 
-    await message.answer(text="Введите тип тренеровки>>")
+    await message.answer(text="Введите тип тренеровки>>>")
     await state.set_state(Registration.type_training_input)             
 
 @router.message(Registration.training_time_input)
 async def invalid_time_training_input(message: Message, state: FSMContext):
-    await message.answer(text="Время неверное! Должно состоять из цифр! \n"
-                              "Пример: 22")
+    await message.answer(text="Время неверное! Оно должно быть корректным!  \n"
+                              "Пример: 12:05")
     
 
 @router.message(Registration.type_training_input,F.text.regexp(r'^[А-Я][а-я]+$'))
