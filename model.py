@@ -4,6 +4,5 @@ class Client:
     date_training: str
     time_training: int
     type_training: str
-    address: dict
-    number: str
+    
 

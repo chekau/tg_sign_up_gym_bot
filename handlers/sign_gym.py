@@ -19,12 +19,12 @@ router = Router()
 
 @router.message(StateFilter(None), Command("start"))
 async def start(message: Message, state: FSMContext):
-    await message.answer(text="Здравствуйте, это спортзал SHPI"
+    await message.answer(text="Здравствуйте, это спортзал SHPI" 
                               "Запишитесь в зал SHPI на любую дату уже на первую тренеровку! Введите команду /register",)
 
 @router.message(StateFilter(None), Command('register'))
 async def register(message: Message, state: FSMContext):
-    await message.answer(text="Введите Имя!")
+    await message.answer(text="Введите Имя>>")
     await state.set_state(Registration.name_input)
 
 @router.message(Registration.name_input, F.text.regexp(r'^[А-Я][а-я]+$'))
@@ -32,7 +32,7 @@ async def name_input(message: Message, state: FSMContext):
     new_user = Client()
     new_user.name = message.text.lower()
     await state.update_data(name=new_user.name)
-    await message.answer(text="Введите дату тренеровки")
+    await message.answer(text="Введите дату тренеровки>>")
     await state.set_state(Registration.date_training_input)
 
 @router.message(Registration.name_input)
@@ -59,7 +59,7 @@ async def time_training_input(message: Message,state: FSMContext):
     data = await state.get_data()
     data["time_training"] = message.text.lower()
     await state.update_data(time_training=data['time_training']) 
-    await message.answer(text="Введите тип тренеровки")
+    await message.answer(text="Введите тип тренеровки>>")
     await state.set_state(Registration.type_training_input)             
 
 @router.message(Registration.training_time_input)
