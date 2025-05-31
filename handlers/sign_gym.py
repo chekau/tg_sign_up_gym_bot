@@ -34,12 +34,28 @@ async def name_input(message: Message, state: FSMContext):
     new_user.name = message.text.lower()
     await state.update_data(name=new_user.name)
     await message.answer(text="Введите дату тренеровки")
-    await state.set_state(Registration.date_input)
+    await state.set_state(Registration.date_training_input)
 
 @router.message(Registration.name_input)
 async def invalid_name_input(message: Message, state: FSMContext):
     await message.answer(text="Имя должно начинаться с заглавной буквы и состоять только из русских символов!")
 
-@router.message(Registration.training_time_input,F.text.regexp(r'^[А-Я][а-я]+$'))
-async def training_timei_input(message: Message,state: FSMContext):
-        ...
+@router.message(Registration.date_training_input,F.text.regexp(r'^[А-Я][а-я]+$'))
+async def date_training_input(message: Message,state: FSMContext):
+    data = await state.get_data()
+    data["number"] = message.text.lower()
+    await state.set_state(Registration.number_input)
+    await state.update_data(address=data['date_training'])
+    await message.answer(text="Введите время тренеровки")
+    await state.set_state(Registration.training_time_input)
+
+
+@router.message(Registration.date_training_input)
+async def invalid_date_training_input(message: Message, state: FSMContext):
+    ...
+
+@router.message(Registration.training_time_input,F.text.regexp((r'^[1-9][0-9]*$')))
+async def time_training_input(message: Message,state: FSMContext):
+    ...                
+
+    
