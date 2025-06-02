@@ -22,7 +22,7 @@ router = Router()
 
 @router.message(StateFilter(None), Command("start"))
 async def start(message: Message, state: FSMContext):
-    await message.answer(text="Здравствуйте, 7это спортзал SHPI" 
+    await message.answer(text="Здравствуйте, это спортзал SHPI" 
                               "Запишитесь в зал SHPI на любую дату уже на первую тренеровку! Введите команду /register",)
 
 @router.message(StateFilter(None), Command('register'))
@@ -50,7 +50,7 @@ async def phone_input(message: Message, state: FSMContext):
     data["phone_number"] = message.text.lower()
     await state.update_data(phone_number=['phone_number'])
 
-    ClientTable.add(Registration.name_input,Registration.phone_number_input)
+    ClientTable.add(data["name"],data["phone_number"])
 
 
 
@@ -98,7 +98,7 @@ async def type_training(message: Message,state: FSMContext):
     data['type_training'] = message.text.lower()
     await state.update_data(type_training=data['type_training'])
     
-    TrainingTable.add(Registration.date_training_input, Registration.training_time_input, Registration.type_training_input)
+    TrainingTable.add(data["date_training"],data["time_training"], data["type_training"])
 
 
 
