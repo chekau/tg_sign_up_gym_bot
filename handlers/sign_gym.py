@@ -6,10 +6,13 @@ from aiogram import Router
 from aiogram.filters import Command
 from aiogram.types import Message
 from model import *
+from database import Database,ClientTable,TrainingTable
+
 # Регистрация Клиента
 
 class Registration(StatesGroup): # Состояние
     name_input = State()
+    phone_number_input = State()
     date_training_input = State()
     training_time_input = State()
     type_training_input = State()
@@ -19,7 +22,7 @@ router = Router()
 
 @router.message(StateFilter(None), Command("start"))
 async def start(message: Message, state: FSMContext):
-    await message.answer(text="Здравствуйте, это спортзал SHPI" 
+    await message.answer(text="Здравствуйте, 7это спортзал SHPI" 
                               "Запишитесь в зал SHPI на любую дату уже на первую тренеровку! Введите команду /register",)
 
 @router.message(StateFilter(None), Command('register'))
@@ -32,12 +35,34 @@ async def name_input(message: Message, state: FSMContext):
     new_user = Client()
     new_user.name = message.text.lower()
     await state.update_data(name=new_user.name)
-    await message.answer(text="Введите дату тренеровки, в виде число/месяц/год>>>>")
-    await state.set_state(Registration.date_training_input)
-
+    await message.answer(text="Введите ваш номер телефона, в виде +7..........>>>>")
+    await state.set_state(Registration.phone_number_input)
+    
 @router.message(Registration.name_input)
 async def invalid_name_input(message: Message, state: FSMContext):
     await message.answer(text="Имя должно начинаться с заглавной буквы и состоять только из русских символов!")
+
+
+
+@router.message(Registration.phone_number_input,F.text.regexp(r'^((8|\+7)[\- ]?)?(\(?\d{3}\)?[\- ]?)?[\d\- ]{7,10}$'))
+async def phone_input(message: Message, state: FSMContext):
+    data = await state.get_data()
+    data["phone_number"] = message.text.lower()
+    await state.update_data(phone_number=['phone_number'])
+
+    ClientTable.add(Registration.name_input,Registration.phone_number_input)
+
+
+
+
+    await message.answer(text="Введите дату тренеровки, в виде число/месяц/год>>>>")
+    await state.set_state(Registration.date_training_input)
+
+@router.message(Registration.phone_number_input)
+async def invalid_phone_number_input(message: Message,state: FSMContext):
+    await message.answer(text="Телефоный номер должен начинаться с +7 и 10 цифрами:"
+    "пример: +79999999999")
+
 
 @router.message(Registration.date_training_input,F.text.regexp(r'\b\d{2}/\d{2}/\d{4}\b'))
 async def date_training_input(message: Message,state: FSMContext):
@@ -58,7 +83,7 @@ async def time_training_input(message: Message,state: FSMContext):
     data = await state.get_data()
     data["time_training"] = message.text.lower()
     await state.update_data(time_training=data['time_training']) 
-    await message.answer(text="Введите тип тренеровки>>>")
+    await message.answer(text="Введите тип тренеровки из указанных вариантов: Кардио, Йога, Силовые>>>")
     await state.set_state(Registration.type_training_input)             
 
 @router.message(Registration.training_time_input)
@@ -67,16 +92,22 @@ async def invalid_time_training_input(message: Message, state: FSMContext):
                               "Пример: 12:05")
     
 
-@router.message(Registration.type_training_input,F.text.regexp(r'^[А-Я][а-я]+$'))
+@router.message(Registration.type_training_input,F.text.regexp(r'^(Кардио|Силовая|Йога)$'))
 async def type_training(message: Message,state: FSMContext):
     data = await state.get_data()
     data['type_training'] = message.text.lower()
     await state.update_data(type_training=data['type_training'])
+    
+    TrainingTable.add(Registration.date_training_input, Registration.training_time_input, Registration.type_training_input)
+
+
+
     await message.answer(text="Регистрация завершена!")
 
 
 @router.message(Registration.type_training_input)
 async def invalid_type_training_input(message: Message, state: FSMContext):
-    await message.answer(text="Тип тренеровки неверный! Должно состоять из букв! \n"
-                              "Пример: кардио")
+    await message.answer(text="Тип тренеровки неверный! Можно указать лишь эти 3 варианта с заглавном буквой! \n"
+                              "Пример: Кардио")
+    
     
