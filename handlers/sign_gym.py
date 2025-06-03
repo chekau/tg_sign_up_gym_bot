@@ -49,8 +49,19 @@ async def phone_input(message: Message, state: FSMContext):
     data = await state.get_data()
     data["phone_number"] = message.text.lower()
     await state.update_data(phone_number=['phone_number'])
-
-    ClientTable.add(data["name"],data["phone_number"])
+    
+    name = data.get("name")
+    phone_number = data.get("phone_namber")
+    
+    Database.open(
+             host='109.206.169.221', 
+             user='seschool_01', 
+             password='seschool_01', 
+             database='seschool_01_pks1')
+    
+    await ClientTable.add(name,phone_number)
+      
+    await message.answer("Тренировка успешно добавлена!")
 
 
 
