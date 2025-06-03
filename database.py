@@ -1,10 +1,11 @@
 import mysql.connector
-
+from model import Client,Training
 
 connection = mysql.connector.connect(
+    
+    host='109.206.169.221',
     user='seschool_01',
     password='seschool_01',
-    host='109.206.169.221',
     database='seschool_01_pks1'
 )
 
@@ -28,7 +29,7 @@ class Database:
 
     @classmethod
     def query(cls, sql, values):
-        cursor = cls.cls.__conection.cursor()
+        cursor = cls.__conection.cursor()
         
         cursor.execute(sql, values)
         result = cls.__conection.cursor().fetchall()
@@ -41,9 +42,25 @@ class Database:
         cls.__conection.close()
 
 
-class Client:
+
+
+class TrainingTable:
     @classmethod
-    def add(cls,client: Client):
-        sql = "INSERT INTO Client (`name`,`date_training`,`time_training`,`type_training`)  VALUE (%s, %s, %s, %s)"
-        values = (client.name, client.date_training, client.time_training, client.type_training)
+    def add(cls,training: Training):
+        sql = "INSERT INTO Training (`date_training`,`time_training`,`type_training`) VALUE (%s,%s,%s)"
+        values = [training.date_training, training.time_training, training.type_training]
+        Database.query(sql,values)
+
+    # @classmethod
+    # def create(cls,training: Training):
+    #     sql = "CREATE TABLE Training (`date_training` DATETIME, `time_training` DATETIME, `type_training` VARCHAR(100))"
+
+
+
+
+class ClientTable:
+    @classmethod
+    def add(cls, name, phone_number):
+        sql = "INSERT INTO Сlient_gym (`name`,`phone_number`)  VALUE (%s, %s)"
+        values = (name, phone_number)
         Database.query(sql,values)
