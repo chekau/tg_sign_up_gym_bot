@@ -12,6 +12,7 @@ connection = mysql.connector.connect(
 class Database: 
     __conection = None
     
+    
     @classmethod
     def open(cls, 
              host='109.206.169.221', 
@@ -26,16 +27,17 @@ class Database:
                 database=database   
             )
 
+            cls.__cursor = cls.__conection.cursor()
+
 
     @classmethod
     def query(cls, sql, values):
-        cursor = cls.__conection.cursor()
-        
-        cursor.execute(sql, values)
-        result = cls.__conection.cursor().fetchall()
+
+
         cls.__conection.commit()
         
-        return result
+        return cls.__cursor.execute(sql,values)
+    
     
     @classmethod
     def close(cls):
@@ -61,6 +63,6 @@ class TrainingTable:
 class ClientTable:
     @classmethod
     def add(cls, name, phone_number):
-        sql = "INSERT INTO Сlient_gym (`name`,`phone_number`)  VALUE (%s, %s)"
+        sql = "INSERT INTO Client_gym (`name`,`phone_number`)  VALUE (%s, %s)"
         values = (name, phone_number)
         Database.query(sql,values)
