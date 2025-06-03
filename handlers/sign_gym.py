@@ -33,8 +33,8 @@ async def register(message: Message, state: FSMContext):
 @router.message(Registration.name_input, F.text.regexp(r'^[А-Я][а-я]+$'))
 async def name_input(message: Message, state: FSMContext):
     data = await state.get_data()
-    data["name"] = message.text.lower()
-    await state.update_data(name="name")
+    data['name'] = message.text.lower()
+    await state.update_data(name=data['name'])
     await message.answer(text="Введите ваш номер телефона, в виде +7..........>>>>")
     await state.set_state(Registration.phone_number_input)
     
@@ -47,11 +47,11 @@ async def invalid_name_input(message: Message, state: FSMContext):
 @router.message(Registration.phone_number_input,F.text.regexp(r'^((8|\+7)[\- ]?)?(\(?\d{3}\)?[\- ]?)?[\d\- ]{7,10}$'))
 async def phone_input(message: Message, state: FSMContext):
     data = await state.get_data()
-    data["phone_number"] = message.text.lower()
-    await state.update_data(phone_number='phone_number')
+    data['phone_number'] = message.text.lower()
+    await state.update_data(phone_number=data['phone_number'])
     
-    name = data.get("name")
-    phone_number = data.get("phone_namber")
+    name = data.get('name')
+    phone_number = data.get('phone_number')
     print(name)
     print(phone_number)
     
@@ -61,14 +61,14 @@ async def phone_input(message: Message, state: FSMContext):
              password='seschool_01', 
              database='seschool_01_pks1')
     
-    await ClientTable.add(name,phone_number)
+    ClientTable.add(name,phone_number)
       
     await message.answer("Клиент успешно добавлен!")
 
 
 
 
-    await message.answer(text="Введите дату тренеровки, в виде число/месяц/год>>>>")
+    await message.answer(text="Введите дату тренеровки, в виде ГГГГ-ММ-ДД>>>>")
     await state.set_state(Registration.date_training_input)
 
 @router.message(Registration.phone_number_input)
@@ -77,7 +77,7 @@ async def invalid_phone_number_input(message: Message,state: FSMContext):
     "пример: +79999999999")
 
 
-@router.message(Registration.date_training_input,F.text.regexp(r'\b\d{2}/\d{2}/\d{4}\b'))
+@router.message(Registration.date_training_input,F.text.regexp(r'/(\d{4})-(\d{2})-(\d{2})$/'))
 async def date_training_input(message: Message,state: FSMContext):
     data = await state.get_data()
     data["date_training"] = message.text.lower()
@@ -89,9 +89,9 @@ async def date_training_input(message: Message,state: FSMContext):
 @router.message(Registration.date_training_input)
 async def invalid_date_training_input(message: Message, state: FSMContext):
      await message.answer(text="Дата неверная! Она должна быть корректной! \n"
-                               "Пример: 12/01/2025")
+                               "Пример: 2025-02-12")
 
-@router.message(Registration.training_time_input,F.text.regexp(r'\b[0-2]?[0-9]:[0-5][0-9]\b'))
+@router.message(Registration.training_time_input,F.text.regexp(r'\d+'))
 async def time_training_input(message: Message,state: FSMContext):
     data = await state.get_data()
     data["time_training"] = message.text.lower()
@@ -102,7 +102,7 @@ async def time_training_input(message: Message,state: FSMContext):
 @router.message(Registration.training_time_input)
 async def invalid_time_training_input(message: Message, state: FSMContext):
     await message.answer(text="Время неверное! Оно должно быть корректным!  \n"
-                              "Пример: 12:05")
+                              "Пример: 12")
     
 
 @router.message(Registration.type_training_input,F.text.regexp(r'^(Кардио|Силовая|Йога)$'))
@@ -110,6 +110,8 @@ async def type_training(message: Message,state: FSMContext):
     data = await state.get_data()
     data['type_training'] = message.text.lower()
     await state.update_data(type_training=data['type_training'])
+
+    date_training = data.get()
     
    
 
