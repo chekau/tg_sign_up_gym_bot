@@ -77,12 +77,12 @@ async def invalid_phone_number_input(message: Message,state: FSMContext):
     "пример: +79999999999")
 
 
-@router.message(Registration.date_training_input,F.text.regexp(r'/(\d{4})-(\d{2})-(\d{2})$/'))
+@router.message(Registration.date_training_input,F.text.regexp(r'^\d{4}-\d{2}-\d{2}$'))
 async def date_training_input(message: Message,state: FSMContext):
     data = await state.get_data()
     data["date_training"] = message.text.lower()
     await state.update_data(date_training=data['date_training'])
-    await message.answer(text="Введите время тренеровки, в виде число:число >>")
+    await message.answer(text="Введите время тренеровки, в виде часы:минуты>>")
     await state.set_state(Registration.training_time_input)
 
 
@@ -91,7 +91,7 @@ async def invalid_date_training_input(message: Message, state: FSMContext):
      await message.answer(text="Дата неверная! Она должна быть корректной! \n"
                                "Пример: 2025-02-12")
 
-@router.message(Registration.training_time_input,F.text.regexp(r'\d+'))
+@router.message(Registration.training_time_input,F.text.regexp(r'^(0?[0-9]|1[0-9]|2[0-3]):([0-5][0-9])$'))
 async def time_training_input(message: Message,state: FSMContext):
     data = await state.get_data()
     data["time_training"] = message.text.lower()
@@ -102,7 +102,7 @@ async def time_training_input(message: Message,state: FSMContext):
 @router.message(Registration.training_time_input)
 async def invalid_time_training_input(message: Message, state: FSMContext):
     await message.answer(text="Время неверное! Оно должно быть корректным!  \n"
-                              "Пример: 12")
+                              "Пример: 12:15")
     
 
 @router.message(Registration.type_training_input,F.text.regexp(r'^(Кардио|Силовая|Йога)$'))
@@ -111,13 +111,27 @@ async def type_training(message: Message,state: FSMContext):
     data['type_training'] = message.text.lower()
     await state.update_data(type_training=data['type_training'])
 
-    date_training = data.get()
+    date_training = data.get('date_training')
+    time_training = data.get('time_training')
+    type_training = data.get("type_traning")
+    
+    
+    Database.open(
+             host='109.206.169.221', 
+             user='seschool_01', 
+             password='seschool_01', 
+             database='seschool_01_pks1')
+    
+    TrainingTable.add(date_training,time_training,type_training)
+      
+    await message.answer("Тренеровка успешно добавлена!")
+
     
    
 
-
-
     await message.answer(text="Регистрация завершена!")
+    
+
 
 
 @router.message(Registration.type_training_input)
