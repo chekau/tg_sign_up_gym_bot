@@ -33,10 +33,10 @@ class Database:
     @classmethod
     def query(cls, sql, values):
 
-
+        cls.__cursor.execute(sql,values)
         cls.__conection.commit()
-        
-        return cls.__cursor.execute(sql,values)
+        result = cls.__cursor.fetchall()
+        return result
     
     
     @classmethod
@@ -48,9 +48,9 @@ class Database:
 
 class TrainingTable:
     @classmethod
-    def add(cls,training: Training):
+    def add(cls,date_training, time_training, type_training):
         sql = "INSERT INTO Training (`date_training`,`time_training`,`type_training`) VALUE (%s,%s,%s)"
-        values = [training.date_training, training.time_training, training.type_training]
+        values = (date_training, time_training, type_training)
         Database.query(sql,values)
 
     # @classmethod
