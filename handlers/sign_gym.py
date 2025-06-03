@@ -32,9 +32,9 @@ async def register(message: Message, state: FSMContext):
 
 @router.message(Registration.name_input, F.text.regexp(r'^[А-Я][а-я]+$'))
 async def name_input(message: Message, state: FSMContext):
-    new_user = Client()
-    new_user.name = message.text.lower()
-    await state.update_data(name=new_user.name)
+    data = await state.get_data()
+    data["name"] = message.text.lower()
+    await state.update_data(name="name")
     await message.answer(text="Введите ваш номер телефона, в виде +7..........>>>>")
     await state.set_state(Registration.phone_number_input)
     
@@ -48,10 +48,12 @@ async def invalid_name_input(message: Message, state: FSMContext):
 async def phone_input(message: Message, state: FSMContext):
     data = await state.get_data()
     data["phone_number"] = message.text.lower()
-    await state.update_data(phone_number=['phone_number'])
+    await state.update_data(phone_number='phone_number')
     
     name = data.get("name")
     phone_number = data.get("phone_namber")
+    print(name)
+    print(phone_number)
     
     Database.open(
              host='109.206.169.221', 
@@ -61,7 +63,7 @@ async def phone_input(message: Message, state: FSMContext):
     
     await ClientTable.add(name,phone_number)
       
-    await message.answer("Тренировка успешно добавлена!")
+    await message.answer("Клиент успешно добавлен!")
 
 
 
@@ -109,7 +111,7 @@ async def type_training(message: Message,state: FSMContext):
     data['type_training'] = message.text.lower()
     await state.update_data(type_training=data['type_training'])
     
-    TrainingTable.add(data["date_training"],data["time_training"], data["type_training"])
+   
 
 
 
