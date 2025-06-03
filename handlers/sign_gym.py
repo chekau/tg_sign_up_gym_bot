@@ -17,12 +17,11 @@ class Registration(StatesGroup): # Состояние
     training_time_input = State()
     type_training_input = State()
     
-
 router = Router()
 
 @router.message(StateFilter(None), Command("start"))
 async def start(message: Message, state: FSMContext):
-    await message.answer(text="Здравствуйте, это спортзал SHPI" 
+    await message.answer(text="Здравствуйте, это спортзал SHPI \n" 
                               "Запишитесь в зал SHPI на любую дату уже на первую тренеровку! Введите команду /register",)
 
 @router.message(StateFilter(None), Command('register'))
@@ -33,7 +32,7 @@ async def register(message: Message, state: FSMContext):
 @router.message(Registration.name_input, F.text.regexp(r'^[А-Я][а-я]+$'))
 async def name_input(message: Message, state: FSMContext):
     data = await state.get_data()
-    data['name'] = message.text.lower()
+    data['name'] = message.text
     await state.update_data(name=data['name'])
     await message.answer(text="Введите ваш номер телефона, в виде +7..........>>>>")
     await state.set_state(Registration.phone_number_input)
@@ -41,8 +40,6 @@ async def name_input(message: Message, state: FSMContext):
 @router.message(Registration.name_input)
 async def invalid_name_input(message: Message, state: FSMContext):
     await message.answer(text="Имя должно начинаться с заглавной буквы и состоять только из русских символов!")
-
-
 
 @router.message(Registration.phone_number_input,F.text.regexp(r'^((8|\+7)[\- ]?)?(\(?\d{3}\)?[\- ]?)?[\d\- ]{7,10}$'))
 async def phone_input(message: Message, state: FSMContext):
@@ -52,8 +49,6 @@ async def phone_input(message: Message, state: FSMContext):
     
     name = data.get('name')
     phone_number = data.get('phone_number')
-    print(name)
-    print(phone_number)
     
     Database.open(
              host='109.206.169.221', 
@@ -64,10 +59,6 @@ async def phone_input(message: Message, state: FSMContext):
     ClientTable.add(name,phone_number)
       
     await message.answer("Клиент успешно добавлен!")
-
-
-
-
     await message.answer(text="Введите дату тренеровки, в виде ГГГГ-ММ-ДД>>>>")
     await state.set_state(Registration.date_training_input)
 
@@ -76,7 +67,6 @@ async def invalid_phone_number_input(message: Message,state: FSMContext):
     await message.answer(text="Телефоный номер должен начинаться с +7 и 10 цифрами:"
     "пример: +79999999999")
 
-
 @router.message(Registration.date_training_input,F.text.regexp(r'^\d{4}-\d{2}-\d{2}$'))
 async def date_training_input(message: Message,state: FSMContext):
     data = await state.get_data()
@@ -84,7 +74,6 @@ async def date_training_input(message: Message,state: FSMContext):
     await state.update_data(date_training=data['date_training'])
     await message.answer(text="Введите время тренеровки, в виде часы:минуты>>")
     await state.set_state(Registration.training_time_input)
-
 
 @router.message(Registration.date_training_input)
 async def invalid_date_training_input(message: Message, state: FSMContext):
@@ -104,8 +93,7 @@ async def invalid_time_training_input(message: Message, state: FSMContext):
     await message.answer(text="Время неверное! Оно должно быть корректным!  \n"
                               "Пример: 12:15")
     
-
-@router.message(Registration.type_training_input,F.text.regexp(r'^(Кардио|Силовая|Йога)$'))
+@router.message(Registration.type_training_input,F.text.regexp(r'^(Кардио|Силовые|Йога)$'))
 async def type_training(message: Message,state: FSMContext):
     data = await state.get_data()
     data['type_training'] = message.text.lower()
@@ -115,7 +103,6 @@ async def type_training(message: Message,state: FSMContext):
     time_training = data.get('time_training')
     type_training = data.get("type_traning")
     
-    
     Database.open(
              host='109.206.169.221', 
              user='seschool_01', 
@@ -123,16 +110,8 @@ async def type_training(message: Message,state: FSMContext):
              database='seschool_01_pks1')
     
     TrainingTable.add(date_training,time_training,type_training)
-      
     await message.answer("Тренеровка успешно добавлена!")
-
-    
-   
-
     await message.answer(text="Регистрация завершена!")
-    
-
-
 
 @router.message(Registration.type_training_input)
 async def invalid_type_training_input(message: Message, state: FSMContext):

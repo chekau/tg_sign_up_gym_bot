@@ -1,6 +1,7 @@
 import mysql.connector
 from model import Client,Training
 
+
 connection = mysql.connector.connect(
     
     host='109.206.169.221',
@@ -11,8 +12,6 @@ connection = mysql.connector.connect(
 
 class Database: 
     __conection = None
-    
-    
     @classmethod
     def open(cls, 
              host='109.206.169.221', 
@@ -28,23 +27,16 @@ class Database:
             )
 
             cls.__cursor = cls.__conection.cursor()
-
-
     @classmethod
     def query(cls, sql, values):
 
         cls.__cursor.execute(sql,values)
         cls.__conection.commit()
         result = cls.__cursor.fetchall()
-        return result
-    
-    
+        return result   
     @classmethod
     def close(cls):
         cls.__conection.close()
-
-
-
 
 class TrainingTable:
     @classmethod
@@ -52,13 +44,6 @@ class TrainingTable:
         sql = "INSERT INTO Training (`date_training`,`time_training`,`type_training`) VALUE (%s,%s,%s)"
         values = (date_training, time_training, type_training)
         Database.query(sql,values)
-
-    # @classmethod
-    # def create(cls,training: Training):
-    #     sql = "CREATE TABLE Training (`date_training` DATETIME, `time_training` DATETIME, `type_training` VARCHAR(100))"
-
-
-
 
 class ClientTable:
     @classmethod

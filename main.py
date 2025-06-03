@@ -7,9 +7,6 @@ from handlers import sign_gym
 from config import TOKEN
 
 
-
-
-
 async def main():
     bot = Bot(token=TOKEN)
     dp = Dispatcher()
